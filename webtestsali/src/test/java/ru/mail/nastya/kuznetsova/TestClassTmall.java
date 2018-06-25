@@ -3,6 +3,7 @@ package ru.mail.nastya.kuznetsova;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.List;
@@ -10,23 +11,28 @@ import java.util.List;
 
 public class TestClassTmall extends BaseTest {
 
-    @Test(groups = {"tmall"})
-    public static void testItemsLinkNameConformity(){
+    @DataProvider(name = "inputValues")
+    public static Object [] getSearchInputValues(){
+        return new Object[] {
+                "apple",
+                "lego duplo"
+        };
+    }
+
+    @Test(groups = {"tmall"}, dataProvider = "inputValues")
+    public static void testItemsLinkNameConformity(String inputValue){
         // Define flag for checking presence of invalid items
         Boolean invalidItemsPresence = false;
 
         // Type needed data to the "Search" field
-        searchGoods("smartphone");
+        searchGoods(inputValue);
 
         // Wait some time for full page readiness
         waitForLoad();
 
         // Calculation the number of pages with found items
         // It is more like 'workaround' until more elegant solution of getting total pages number will be found
-        String pageNumberMax = firefox.findElement(By.id("pagination-max")).getAttribute("innerHTML");
-        int pageNumber = Integer.valueOf(pageNumberMax);
-
-        System.out.println(pageNumber);
+        int pageNumber = calculatePageNumber();
 
         int count = 1;
 
@@ -47,7 +53,7 @@ public class TestClassTmall extends BaseTest {
                 List<WebElement> items = firefox.findElements(
                         By.xpath(
                                 String.format(
-                                        ".//*[@id=\"%s\"]//*[contains(@class, \"history-item product\")]",
+                                        ".//div[@id=\"%s\"]//*[contains(@class, \"history-item product\")]",
                                         itemsListID
                                 )
                         )

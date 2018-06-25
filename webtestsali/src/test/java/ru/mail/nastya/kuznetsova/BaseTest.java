@@ -43,6 +43,7 @@ public class BaseTest {
 
     public static void searchGoods(String goods){
         WebElement searchField = firefox.findElement(By.id("search-key"));
+        searchField.clear();
         searchField.sendKeys(goods);
         searchField.submit();
     }
@@ -58,6 +59,19 @@ public class BaseTest {
                         "return document.readyState").equals("interactive")
         );
         System.out.println("Page Loaded Completely");
+    }
+
+    public static int calculatePageNumber(){
+        // Need to think about more flexible way of calculating number of pages
+        // Current method can be false positive and returns 1 even if page is unavailable
+        try {
+            waitElementPresence("pagination-max");
+            String pageNumberMax = firefox.findElement(By.id("pagination-max")).getAttribute("innerHTML");
+            return Integer.valueOf(pageNumberMax);
+        } catch (Exception e) {
+            // If there are no hidden pagination-max element on the page, there is only 1 page
+            return 1;
+        }
     }
 
 }
